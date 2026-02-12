@@ -42,3 +42,9 @@ First, clone the repository with the command:
 ```console
 git clone git@github.com:vinivosh/planne-backend-challenge.git
 ```
+
+> Note: if you use [**`mise`** (a.k.a. mise-en-place)](https://mise.jdx.dev/about.html) in your machine, it might be needed to run the command below to let `mise` trust the config file `.mise.toml`. This file just tells `mise` to let `uv` manage the Python version.
+> 
+> ```console
+> mise trust
+> ```
