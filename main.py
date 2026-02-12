@@ -1,5 +1,5 @@
 def main():
-    print("Hello from planne-back-end-challenge!")
+    print("Hello from FruitFULL!")
 
 
 if __name__ == "__main__":

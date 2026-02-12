@@ -1,7 +1,7 @@
 [project]
-name = "planne-back-end-challenge"
+name = "fruit-full"
 version = "0.1.0"
-description = "Add your description here"
+description = "FruitFULL is a Python project that provides a simple RESTful API for managing a collection of fruits in buckets. Built for Planne's back-end challenge."
 readme = "README.md"
-requires-python = ">=3.13"
+requires-python = ">=3.12"
 dependencies = []

@@ -199,4 +199,4 @@ pyrightconfig.json
 # Project specific
 ################################################################################
 
-!.vscode/*.code-workspace
+~*
