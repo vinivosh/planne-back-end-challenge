@@ -19,3 +19,23 @@ dev = [
     "rich==14.3.2",
     "ruff==0.15.0",
 ]
+
+
+[tool.ruff]
+line-length = 79
+
+
+[tool.ruff.lint]
+extend-select = [
+    "D",     # pydocstyle
+    "E501",  # line-too-long
+    "N",     # PEP8 naming
+    "UP",    # pyupgrade
+]
+extend-ignore = [
+    "F403",  # 'from module import *' used; unable to detect undefined names
+]
+
+
+[tool.ruff.lint.pydocstyle]
+convention = "pep257"
