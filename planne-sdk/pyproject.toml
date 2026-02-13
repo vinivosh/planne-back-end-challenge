@@ -8,23 +8,23 @@ authors = [
 ]
 requires-python = ">=3.11.14"
 dependencies = [
-    "alembic[tz]>=1.18.4",
-    "psycopg>=3.3.2",
-    "pydantic[email]>=2.12.5",
-    "python-dotenv>=1.2.1",
-    "sqlmodel>=0.0.33",
-    "structlog>=25.5.0",
+    "alembic[tz]==1.18.4",
+    "psycopg==3.3.2",
+    "pydantic[email]==2.12.5",
+    "python-dotenv==1.2.1",
+    "sqlmodel==0.0.33",
+    "structlog==25.5.0",
 ]
 
 [build-system]
-requires = ["uv_build>=0.10.1,<0.11.0"]
+requires = ["uv_build==0.10.1,<0.11.0"]
 build-backend = "uv_build"
 
 [dependency-groups]
 dev = [
-    "commitlint>=1.13.3",
-    "pre-commit>=4.5.1",
-    "pytest>=9.0.2",
-    "rich>=14.3.2",
-    "ruff>=0.15.1",
+    "commitlint==1.13.3",
+    "pre-commit==4.5.1",
+    "pytest==9.0.2",
+    "rich==14.3.2",
+    "ruff==0.15.1",
 ]

@@ -5,17 +5,17 @@ description = "FruitFULL is a Python project that provides a simple RESTful API 
 readme = "README.md"
 requires-python = ">=3.12.12"
 dependencies = [
-    "fastapi[standard]>=0.129.0",
-    "psycopg-binary>=3.3.2",
-    "python-dotenv>=1.2.1",
-    "structlog>=25.5.0",
+    "fastapi[standard]==0.129.0",
+    "psycopg-binary==3.3.2",
+    "python-dotenv==1.2.1",
+    "structlog==25.5.0",
 ]
 
 [dependency-groups]
 dev = [
-    "commitlint>=1.13.3",
-    "pre-commit>=4.5.1",
-    "pytest>=9.0.2",
-    "rich>=14.3.2",
-    "ruff>=0.15.0",
+    "commitlint==1.13.3",
+    "pre-commit==4.5.1",
+    "pytest==9.0.2",
+    "rich==14.3.2",
+    "ruff==0.15.0",
 ]
