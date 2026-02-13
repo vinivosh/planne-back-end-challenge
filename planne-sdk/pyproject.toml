@@ -1,7 +1,7 @@
 [project]
 name = "planne-sdk"
 version = "0.1.0"
-description = "Add your description here"
+description = "SDK for Planne's projects. Contains data models and use cases for interacting with Planne's DBs and systems, while following all the business logic. To be used by any other project in the eco-system. Follows semantic versioning."
 readme = "README.md"
 authors = [
     { name = "vinivosh", email = "36175157+vinivosh@users.noreply.github.com" }
