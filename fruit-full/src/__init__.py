@@ -16,15 +16,16 @@ _APP_DIR = _FILE_DIR.parent.resolve()
 sys.path.append(str(_FILE_DIR))
 
 import constants as c
+from api import api_router
 
 app = FastAPI(
     title=c.PROJECT_NAME,
 )
 
+app.include_router(api_router, prefix=c.API_V1_STR)
+
 
 if __name__ == "__main__":
-    print("\n\n\n\nHello world!\n\n\n\n")
-
     uvicorn.run(
         "__init__:app",
         host=c.FASTAPI_HOST,
