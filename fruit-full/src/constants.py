@@ -12,16 +12,26 @@ import dotenv
 # Loading ".env" file
 dotenv.load_dotenv()
 
-LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO").upper()
-if LOG_LEVEL not in logging.getLevelNamesMapping().keys():
-    raise ValueError(
-        f"Environment variable LOG_LEVEL must be one of: {logging.getLevelNamesMapping().keys()}"
-    )
-
 ENVIRONMENT = os.getenv("ENVIRONMENT", "prd").lower()
 if ENVIRONMENT not in ["dev", "prd", "stg"]:
     raise ValueError(
         "Environment variable ENVIRONMENT must be one of: dev, prd, stg"
+    )
+
+_LOG_LEVELS = [
+    "CRITICAL",
+    "FATAL",
+    "ERROR",
+    "WARN",
+    "WARNING",
+    "INFO",
+    "DEBUG",
+]
+
+LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO").upper()
+if LOG_LEVEL not in _LOG_LEVELS:
+    raise ValueError(
+        f"Environment variable LOG_LEVEL must be one of: {', '.join(_LOG_LEVELS)}"
     )
 
 try:
