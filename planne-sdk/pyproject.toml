@@ -42,6 +42,7 @@ extend-select = [
     "UP",    # pyupgrade
 ]
 extend-ignore = [
+    "E501",  # line-too-long
     "F403",  # 'from module import *' used; unable to detect undefined names
 ]
 

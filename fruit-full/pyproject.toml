@@ -8,10 +8,10 @@ dependencies = [
     "fastapi[standard]==0.129.0",
     "psycopg-binary==3.3.2",
     "python-dotenv==1.2.1",
-    "sqlmodel>=0.0.33",
+    "sqlmodel==0.0.33",
     "structlog==25.5.0",
-    "uvicorn[standard]>=0.40.0",
-    "uvloop>=0.22.1",
+    "uvicorn[standard]==0.40.0",
+    "uvloop==0.22.1",
 ]
 
 [dependency-groups]
@@ -36,6 +36,7 @@ extend-select = [
     "UP",    # pyupgrade
 ]
 extend-ignore = [
+    "E501",  # line-too-long
     "F403",  # 'from module import *' used; unable to detect undefined names
 ]
 
