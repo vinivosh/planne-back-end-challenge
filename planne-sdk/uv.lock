@@ -317,6 +317,9 @@ dev = [
     { name = "rich" },
     { name = "ruff" },
 ]
+migrations = [
+    { name = "alembic", extra = ["tz"] },
+]
 
 [package.metadata]
 requires-dist = [
@@ -336,6 +339,7 @@ dev = [
     { name = "rich", specifier = "==14.3.2" },
     { name = "ruff", specifier = "==0.15.1" },
 ]
+migrations = [{ name = "alembic", extras = ["tz"], specifier = "==1.18.4" }]
 
 [[package]]
 name = "platformdirs"
