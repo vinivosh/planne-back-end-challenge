@@ -22,7 +22,7 @@ My solution to the challenge for a back-end developer position at [Planne](https
 - [Semantic Versioning](https://semver.org/#semantic-versioning-200)
 - [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/#summary), enforced with the [pre-commit](https://pre-commit.com/#plugins) hook [`commitlint`](https://github.com/opensource-nepal/commitlint?tab=readme-ov-file#pre-commit)
 - [PEP8 code style](https://peps.python.org/pep-0008/), enforced with the [`ruff` linter](https://docs.astral.sh/ruff/)
-- [PEP 257 docstrings](https://peps.python.org/pep-0257/)
+- [Google style docstrings](https://google.github.io/styleguide/pyguide.html#381-docstrings), also enforced with `ruff`
 
 
 
