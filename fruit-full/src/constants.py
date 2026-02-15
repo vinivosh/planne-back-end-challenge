@@ -1,0 +1,42 @@
+"""Module containing all the constants used in the application. Most of these are loaded from environment variables."""
+
+import logging
+import os
+
+import dotenv
+
+# * ###########################################################################
+# * Environment variables
+# * ###########################################################################
+
+# Loading ".env" file
+dotenv.load_dotenv()
+
+LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO").upper()
+if LOG_LEVEL not in logging.getLevelNamesMapping().keys():
+    raise ValueError(
+        f"Environment variable LOG_LEVEL must be one of: {logging.getLevelNamesMapping().keys()}"
+    )
+
+ENVIRONMENT = os.getenv("ENVIRONMENT", "prd").lower()
+if ENVIRONMENT not in ["dev", "prd", "stg"]:
+    raise ValueError(
+        "Environment variable ENVIRONMENT must be one of: dev, prd, stg"
+    )
+
+try:
+    FASTAPI_PORT = int(os.getenv("FASTAPI_PORT", 8000))
+except ValueError:
+    raise ValueError(
+        "Environment variable FASTAPI_PORT must be a valid integer"
+    )
+
+FASTAPI_HOST = os.getenv("FASTAPI_HOST", "0.0.0.0")
+PROJECT_NAME = os.getenv("PROJECT_NAME", "FruitFULL")
+
+
+# * ###########################################################################
+# * Other server configurations
+# * ###########################################################################
+
+API_V1_STR = "/api/v1"
