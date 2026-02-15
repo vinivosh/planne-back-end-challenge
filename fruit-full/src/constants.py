@@ -1,9 +1,20 @@
 """Module containing all the constants used in the application. Most of these are loaded from environment variables."""
 
-import logging
 import os
+from multiprocessing import cpu_count
 
 import dotenv
+
+_LOG_LEVELS = [
+    "CRITICAL",
+    "FATAL",
+    "ERROR",
+    "WARN",
+    "WARNING",
+    "INFO",
+    "DEBUG",
+]
+_DEFAULT_WORKERS_PER_THREAD = 4
 
 # * ###########################################################################
 # * Environment variables
@@ -17,16 +28,6 @@ if ENVIRONMENT not in ["dev", "prd", "stg"]:
     raise ValueError(
         "Environment variable ENVIRONMENT must be one of: dev, prd, stg"
     )
-
-_LOG_LEVELS = [
-    "CRITICAL",
-    "FATAL",
-    "ERROR",
-    "WARN",
-    "WARNING",
-    "INFO",
-    "DEBUG",
-]
 
 LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO").upper()
 if LOG_LEVEL not in _LOG_LEVELS:
@@ -43,6 +44,17 @@ except ValueError:
 
 FASTAPI_HOST = os.getenv("FASTAPI_HOST", "0.0.0.0")
 PROJECT_NAME = os.getenv("PROJECT_NAME", "FruitFULL")
+
+WORKERS = os.environ.get("WORKERS", None)
+if WORKERS is None:
+    WORKERS = cpu_count() * _DEFAULT_WORKERS_PER_THREAD
+else:
+    try:
+        WORKERS = int(WORKERS)
+    except ValueError:
+        raise ValueError(
+            "Environment variable WORKERS must be a valid integer"
+        )
 
 
 # * ###########################################################################

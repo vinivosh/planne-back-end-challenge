@@ -31,6 +31,7 @@ if __name__ == "__main__":
         host=c.FASTAPI_HOST,
         port=c.FASTAPI_PORT,
         loop="uvloop",
+        workers=c.WORKERS,
         reload=True if c.ENVIRONMENT == "dev" else False,
         log_level=c.LOG_LEVEL.lower(),
         app_dir=str(_APP_DIR),
