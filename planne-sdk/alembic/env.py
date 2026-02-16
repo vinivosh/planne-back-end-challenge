@@ -1,9 +1,22 @@
+"""Configuration file for Alembic."""
+
+import os
+import sys
 from logging.config import fileConfig
+from pathlib import Path
 
-from sqlalchemy import engine_from_config
-from sqlalchemy import pool
+import dotenv
+from sqlalchemy import engine_from_config, pool
 
+import planne_sdk.constants as c
 from alembic import context
+from planne_sdk.models import SQLModel
+
+# Add planne-sdk root to the Python path
+_FILE_DIR = Path(__file__).parent.resolve()
+_PROJECT_DIR = _FILE_DIR.parent.resolve()
+sys.path.append(str(_PROJECT_DIR))
+
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -18,12 +31,21 @@ if config.config_file_name is not None:
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
-target_metadata = None
+target_metadata = SQLModel.metadata
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
 # my_important_option = config.get_main_option("my_important_option")
 # ... etc.
+
+
+# Printing some info on the DB we're connecting
+ENV_FILE_PATH = _PROJECT_DIR.joinpath(".env")
+loaded_env_vars = dotenv.load_dotenv(ENV_FILE_PATH)
+
+print(f'Alembic | Loaded env vars from "{ENV_FILE_PATH}"? {loaded_env_vars}')
+print(f"Alembic | POSTGRES_SERVER={c.POSTGRES_SERVER}")
+print(f"Alembic | POSTGRES_PORT={c.POSTGRES_PORT}")
 
 
 def run_migrations_offline() -> None:
@@ -36,14 +58,16 @@ def run_migrations_offline() -> None:
 
     Calls to context.execute() here emit the given string to the
     script output.
-
     """
-    url = config.get_main_option("sqlalchemy.url")
+    url = c.get_postgres_uri()
+
     context.configure(
         url=url,
         target_metadata=target_metadata,
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
+        include_schemas=True,
+        compare_type=True,
     )
 
     with context.begin_transaction():
@@ -55,17 +79,25 @@ def run_migrations_online() -> None:
 
     In this scenario we need to create an Engine
     and associate a connection with the context.
-
     """
+    url = c.get_postgres_uri()
+
+    # Create configuration for the engine
+    configuration = config.get_section(config.config_ini_section, {})
+    configuration["sqlalchemy.url"] = url
+
     connectable = engine_from_config(
-        config.get_section(config.config_ini_section, {}),
+        configuration,
         prefix="sqlalchemy.",
         poolclass=pool.NullPool,
     )
 
     with connectable.connect() as connection:
         context.configure(
-            connection=connection, target_metadata=target_metadata
+            connection=connection,
+            target_metadata=target_metadata,
+            include_schemas=True,
+            compare_type=True,
         )
 
         with context.begin_transaction():
