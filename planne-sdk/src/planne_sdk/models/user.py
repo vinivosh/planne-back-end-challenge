@@ -44,7 +44,7 @@ class UpdatePassword(SQLModel):
 
 
 class UserPublic(UserBase):
-    """Properties to return via API. ID always required."""
+    """Properties to return via API. ID always included."""
 
     id: UUID
     is_superuser: bool = False
@@ -58,7 +58,7 @@ class UsersPublic(SQLModel):
 
 
 class User(UserBase, table=True):
-    """Database model for User table.
+    """Database model for Users table.
 
     Tables and fields are created, deleted or modified with Alembic migrations
     generated based on this class.
