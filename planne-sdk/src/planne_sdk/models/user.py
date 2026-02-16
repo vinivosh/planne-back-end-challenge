@@ -16,6 +16,47 @@ class UserBase(SQLModel):
     full_name: str = Field(nullable=False, default=None, max_length=1024)
 
 
+class UserSignup(UserBase):
+    """Properties to receive via API on successful signup."""
+
+    password: str = Field(min_length=8, max_length=128)
+
+
+class UserCreate(UserBase):
+    """Properties to receive via API on user creation, when done by a superuser."""
+
+    password: str = Field(min_length=8, max_length=128)
+    is_superuser: bool = False
+
+
+class UserUpdate(SQLModel):
+    """Properties to receive via API on User update, all optional."""
+
+    email: EmailStr | None = Field(default=None, max_length=512)
+    full_name: str | None = Field(default=None, max_length=1024)
+
+
+class UpdatePassword(SQLModel):
+    """Properties to receive via API on password update."""
+
+    current_password: str = Field(min_length=8, max_length=128)
+    new_password: str = Field(min_length=8, max_length=128)
+
+
+class UserPublic(UserBase):
+    """Properties to return via API. ID always required."""
+
+    id: int
+    is_superuser: bool = False
+
+
+class UsersPublic(SQLModel):
+    """Properties to return via API, for multiple users."""
+
+    data: list[UserPublic]
+    count: int
+
+
 class User(UserBase, table=True):
     """Database model for User table.
 
