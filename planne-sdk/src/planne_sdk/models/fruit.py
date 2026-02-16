@@ -98,13 +98,8 @@ class Fruit(TimestampsMixin, FruitBase, table=True):
         # Enforces that `expires_at` is always at least
         # `c.MIN_FRUIT_EXPIRATION_SECONDS` seconds after`created_at`.
         sa.CheckConstraint(
-            "expires_at >= created_at",
+            "expires_at > created_at",
             name="check_expires_at_after_created_at",
-        ),
-        # Enforces that if the fruit is assigned to a bucket, the bucket's user_id must match the fruit's user_id.
-        sa.CheckConstraint(
-            "bucket_id IS NULL OR (bucket_id IS NOT NULL AND bucket.user_id = user_id)",
-            name="check_bucket_user_id_matches_fruit_user_id",
         ),
         {"extend_existing": True},
     )
