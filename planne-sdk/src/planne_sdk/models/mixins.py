@@ -11,13 +11,16 @@ class TimestampsMixin:
 
     Both fields are automatically set to the current UTC time when a new record
     is created. The `updated_at` field is automatically updated to the current
-    UTC time whenever the record is updated.
+    UTC time whenever the record is updated (with SQLAlchemy / SQLModel).
 
     Example:
         ```
         class MyModel(TimestampsMixin, SQLModel):
             pass
         ```
+
+    Credits:
+        Based on suggestions from https://github.com/fastapi/sqlmodel/issues/252
     """
 
     created_at: datetime | None = Field(
