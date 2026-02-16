@@ -1,14 +1,18 @@
 """Contains user-related models."""
 
 from datetime import datetime
+from typing import TYPE_CHECKING, Optional
 from uuid import UUID, uuid4
 
 from pydantic import EmailStr
 from sqlalchemy.sql import false
-from sqlmodel import Field, SQLModel
+from sqlmodel import Field, Relationship, SQLModel
 
 from .. import constants as c
 from .mixins import TimestampsMixin
+
+if TYPE_CHECKING:
+    from .bucket import Bucket
 
 
 class UserBase(SQLModel):
@@ -50,7 +54,7 @@ class UserPublic(UserBase):
 
     id: UUID
     is_superuser: bool
-    created_at: datetime | None
+    created_at: datetime
     updated_at: datetime | None
 
 
@@ -78,3 +82,5 @@ class User(TimestampsMixin, UserBase, table=True):
         sa_column_kwargs={"server_default": false()},
     )
     hashed_password: str
+
+    buckets: list["Bucket"] = Relationship(back_populates="user")

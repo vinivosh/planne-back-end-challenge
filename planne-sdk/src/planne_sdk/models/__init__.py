@@ -4,6 +4,8 @@ from uuid import UUID
 
 from sqlmodel import SQLModel
 
+from .bucket import *
+from .fruit import *
 from .user import *
 
 
