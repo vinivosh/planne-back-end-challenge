@@ -17,7 +17,7 @@ if LOG_LEVEL not in [
     "INFO",
     "DEBUG",
 ]:
-    LOG_LEVEL = "WARN"
+    LOG_LEVEL = "WARNING"
 
 
 # * ###########################################################################
@@ -27,6 +27,26 @@ if LOG_LEVEL not in [
 # Only used as a default value. Functions that use it should handle the case
 # where it is not set (i.e. by raising a ValueError).
 SECRET_KEY = os.getenv("SECRET_KEY", None)
+
+
+# * ###########################################################################
+# * Fruits and bucket logic
+# * ###########################################################################
+
+MIN_BUCKET_CAPACITY = 1
+MAX_BUCKET_CAPACITY = 99
+
+MIN_FRUIT_EXPIRATION_SECONDS = 1
+MAX_FRUIT_EXPIRATION_SECONDS = 14 * 24 * 60 * 60  # 14 days
+
+
+# * ###########################################################################
+# * DB table names
+# * ###########################################################################
+
+USER_TABLE_NAME: str = "users"
+BUCKET_TABLE_NAME: str = "buckets"
+FRUIT_TABLE_NAME: str = "fruits"
 
 
 # * ###########################################################################
@@ -44,10 +64,3 @@ POSTGRES_PASSWORD = os.getenv("POSTGRES_PASSWORD", "")
 def get_postgres_uri():
     """Build and return the PostgreSQL URI for SQLAlchemy."""
     return f"postgresql+psycopg://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_SERVER}:{POSTGRES_PORT}/{POSTGRES_DB}"
-
-
-# * ###########################################################################
-# * DB table names
-# * ###########################################################################
-
-USER_TABLE_NAME: str = "users"
