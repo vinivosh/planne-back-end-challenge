@@ -28,7 +28,7 @@ router = APIRouter()
     dependencies=[Depends(get_current_active_superuser)],
     response_model=UsersPublic,
 )
-def read_users(
+def get_users(
     session: SessionDep,
     current_user: CurrentUser,
     skip: int = 0,
@@ -40,8 +40,9 @@ def read_users(
 
     statement = select(User).offset(skip).limit(limit)
     users = session.exec(statement).all()
+    users = [UserPublic.model_validate(user) for user in users]
 
-    return UsersPublic(data=users, count=count)  # type: ignore
+    return UsersPublic(data=users, count=count)
 
 
 @router.post(
@@ -110,7 +111,7 @@ def update_password_me(
 
 
 @router.get("/me", response_model=UserPublic)
-def read_user_me(current_user: CurrentUser) -> Any:
+def get_user_me(current_user: CurrentUser) -> Any:
     """Get current user."""
     return current_user
 
@@ -146,7 +147,7 @@ def register_user(session: SessionDep, user_in: UserSignup) -> Any:
 
 
 @router.get("/{user_id}", response_model=UserPublic)
-def read_user_by_id(
+def get_user_by_id(
     user_id: UUID, session: SessionDep, current_user: CurrentUser
 ) -> Any:
     """Get a specific user by id."""

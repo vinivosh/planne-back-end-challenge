@@ -102,3 +102,7 @@ FIRST_SUPERUSER_FULL_NAME = os.getenv(
 
 API_V1_STR = "/api/v1"
 ACCESS_TOKEN_EXPIRE_MINUTES = 24 * 60  # 24 hours
+
+CLEANUP_EXPIRED_FRUITS_CRON_SCHEDULE = (
+    "0 7 * * 1"  # Weekly -> 3 AM GMT-3/BRL (6 AM UTC) every monday
+)
