@@ -10,7 +10,6 @@ dependencies = [
     # regular dependency with a version specifier, for example:
     #
     # "planne-sdk==0.1.x",
-    "psycopg-binary==3.3.2",
     "python-dotenv==1.2.1",
     "sqlmodel==0.0.33",
     "structlog==25.5.0",
