@@ -17,6 +17,7 @@ pwd_context = CryptContext(
     argon2__memory_cost=65536,  # 64 MiB
     argon2__time_cost=3,
     argon2__parallelism=4,
+    argon2__type="ID",
     deprecated="auto",
 )
 
