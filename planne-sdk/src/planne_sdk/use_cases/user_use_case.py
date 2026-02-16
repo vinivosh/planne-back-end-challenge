@@ -5,17 +5,19 @@ from typing import Any
 from sqlmodel import Session, select
 
 from ..auth import get_password_hash, verify_password
-from ..models import User, UserCreate, UserUpdate
+from ..models import User, UserCreate, UserSignup, UserUpdate
 
 
-def create_user(*, session: Session, user_create: UserCreate) -> User:
+def create_user(
+    *, session: Session, user_create: UserCreate | UserSignup
+) -> User:
     """Create a new user.
 
     Args:
         session:
             Database session to use for adding and committing the new user.
         user_create:
-            UserCreate object, containing user information.
+            UserCreate or UserSignup object, containing user information.
 
     Returns:
         The newly created `User` object.
