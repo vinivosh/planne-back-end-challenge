@@ -53,7 +53,9 @@ def get_current_user(session: SessionDep, token: TokenDep) -> User:
             If the user associated with the token is not found (status code 404).
     """
     try:
-        payload = jwt.decode(token, c.SECRET_KEY, algorithms=[auth.ALGORITHM])
+        payload = jwt.decode(
+            token, c.SECRET_KEY, algorithms=[auth.JWT_ENCODING_ALGORITHM]
+        )
         token_data = TokenPayload(**payload)
     except (InvalidTokenError, ValidationError):
         raise HTTPException(
