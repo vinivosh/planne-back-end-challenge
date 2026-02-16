@@ -12,7 +12,7 @@ from .. import constants as c
 from .mixins import TimestampsMixin
 
 if TYPE_CHECKING:
-    from .bucket import Bucket
+    from . import Bucket, Fruit
 
 
 class UserBase(SQLModel):
@@ -84,3 +84,5 @@ class User(TimestampsMixin, UserBase, table=True):
     hashed_password: str
 
     buckets: list["Bucket"] = Relationship(back_populates="user")
+
+    fruits: list["Fruit"] = Relationship(back_populates="user")

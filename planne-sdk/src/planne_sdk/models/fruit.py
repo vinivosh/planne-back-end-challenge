@@ -11,7 +11,7 @@ from .. import constants as c
 from .mixins import TimestampsMixin
 
 if TYPE_CHECKING:
-    from .bucket import Bucket
+    from . import Bucket, User
 
 
 class FruitBase(SQLModel):
@@ -31,6 +31,10 @@ class FruitBase(SQLModel):
 
     bucket_id: UUID | None = Field(
         default=None, nullable=True, foreign_key=f"{c.BUCKET_TABLE_NAME}.id"
+    )
+
+    user_id: UUID = Field(
+        nullable=False, foreign_key=f"{c.USER_TABLE_NAME}.id"
     )
 
 
@@ -94,7 +98,13 @@ class Fruit(TimestampsMixin, FruitBase, table=True):
         # Enforces that `expires_at` is always at least
         # `c.MIN_FRUIT_EXPIRATION_SECONDS` seconds after`created_at`.
         sa.CheckConstraint(
-            f"expires_at >= created_at + interval '{c.MIN_FRUIT_EXPIRATION_SECONDS} second'"
+            "expires_at >= created_at",
+            name="check_expires_at_after_created_at",
+        ),
+        # Enforces that if the fruit is assigned to a bucket, the bucket's user_id must match the fruit's user_id.
+        sa.CheckConstraint(
+            "bucket_id IS NULL OR (bucket_id IS NOT NULL AND bucket.user_id = user_id)",
+            name="check_bucket_user_id_matches_fruit_user_id",
         ),
         {"extend_existing": True},
     )
@@ -106,3 +116,5 @@ class Fruit(TimestampsMixin, FruitBase, table=True):
     )
 
     bucket: Optional["Bucket"] | None = Relationship(back_populates="fruits")
+
+    user: Optional["User"] = Relationship(back_populates="fruits")

@@ -53,6 +53,7 @@ def upgrade() -> None:
         ),
         sa.Column("price", sa.Integer(), nullable=False),
         sa.Column("bucket_id", sa.Uuid(), nullable=True),
+        sa.Column("user_id", sa.Uuid(), nullable=False),
         sa.Column(
             "created_at",
             sa.DateTime(),
@@ -67,10 +68,21 @@ def upgrade() -> None:
         ),
         sa.Column("id", sa.Uuid(), nullable=False),
         sa.Column("expires_at", sa.DateTime(), nullable=False),
-        sa.CheckConstraint("expires_at >= created_at + interval '1 second'"),
+        sa.CheckConstraint(
+            "bucket_id IS NULL OR (bucket_id IS NOT NULL AND bucket.user_id = user_id)",
+            name="check_bucket_user_id_matches_fruit_user_id",
+        ),
+        sa.CheckConstraint(
+            "expires_at >= created_at",
+            name="check_expires_at_after_created_at",
+        ),
         sa.ForeignKeyConstraint(
             ["bucket_id"],
             ["buckets.id"],
+        ),
+        sa.ForeignKeyConstraint(
+            ["user_id"],
+            ["users.id"],
         ),
         sa.PrimaryKeyConstraint("id"),
     )
