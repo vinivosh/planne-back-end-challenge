@@ -1,5 +1,7 @@
 """Configuration file for Alembic."""
 
+# ruff: noqa: E402
+
 import os
 import sys
 from logging.config import fileConfig
@@ -8,15 +10,16 @@ from pathlib import Path
 import dotenv
 from sqlalchemy import engine_from_config, pool
 
-import planne_sdk.constants as c
-from alembic import context
-from planne_sdk.models import SQLModel
-
 # Add planne-sdk root to the Python path
 _FILE_DIR = Path(__file__).parent.resolve()
 _PROJECT_DIR = _FILE_DIR.parent.resolve()
 sys.path.append(str(_PROJECT_DIR))
 
+import planne_sdk.constants as c
+from alembic import context
+from planne_sdk.models import (
+    SQLModel,  # pyright: ignore[reportPrivateImportUsage]
+)
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

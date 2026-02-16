@@ -9,7 +9,7 @@ authors = [
 requires-python = ">=3.11.14"
 dependencies = [
     "alembic[tz]==1.18.4",
-    "psycopg==3.3.2",
+    "psycopg-binary==3.3.2",
     "pydantic[email]==2.12.5",
     "python-dotenv==1.2.1",
     "sqlmodel==0.0.33",
@@ -30,6 +30,7 @@ dev = [
 ]
 migrations = [
     "alembic[tz]==1.18.4",
+    "psycopg==3.3.2",
 ]
 
 
@@ -66,9 +67,9 @@ script_location = "%(here)s/alembic"
 # Uncomment the line below if you want the files to be prepended with date and time
 # see https://alembic.sqlalchemy.org/en/latest/tutorial.html#editing-the-ini-file
 # for all available tokens
-# file_template = "%%(year)d_%%(month).2d_%%(day).2d_%%(hour).2d%%(minute).2d-%%(rev)s_%%(slug)s"
+file_template = "%%(year)d_%%(month).2d_%%(day).2d_%%(hour).2d%%(minute).2d-%%(rev)s_%%(slug)s"
 # Or organize into date-based subdirectories (requires recursive_version_locations = true)
-file_template = "%%(year)d/%%(month).2d/%%(day).2d_%%(hour).2d%%(minute).2d_%%(second).2d_%%(rev)s_%%(slug)s"
+# file_template = "%%(year)d/%%(month).2d/%%(day).2d_%%(hour).2d%%(minute).2d_%%(second).2d_%%(rev)s_%%(slug)s"
 
 # additional paths to be prepended to sys.path. defaults to the current working directory.
 prepend_sys_path = [
@@ -124,8 +125,15 @@ timezone = "UTC"
 # entrypoint = "black"
 # options = "-l 79 REVISION_SCRIPT_FILENAME"
 #
-# [[tool.alembic.post_write_hooks]]
-# lint with attempts to fix using "ruff" - use the module runner, against the "ruff" module
+[[tool.alembic.post_write_hooks]]
+# Lint with ruff
+name = "ruff"
+type = "module"
+module = "ruff"
+options = "format REVISION_SCRIPT_FILENAME"
+
+[[tool.alembic.post_write_hooks]]
+# Attempt to fix with ruff
 name = "ruff"
 type = "module"
 module = "ruff"
