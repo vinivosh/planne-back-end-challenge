@@ -1,10 +1,10 @@
 services:
-  # fruit-full:
+  # fruit_full
   #   container_name: fruit_full
   #   depends_on:
   #       - planne_db
   #   networks:
-  #     - vini-planne
+  #     - vini_planne
   #   env_file:
   #     - .env
   #   ports:
@@ -19,7 +19,7 @@ services:
     container_name: planne_db
     image: postgres:18.2-alpine
     networks:
-      - vini-planne
+      - vini_planne
     env_file:
       # Environment variables for postgres user and password must be set in the
       # .env file located at the root of the repository!
@@ -27,17 +27,17 @@ services:
     ports:
       - "${POSTGRES_PORT-5432}:${POSTGRES_PORT-5432}"
     environment:
-      POSTGRES_HOST_AUTH_METHOD: 'password'
-      SERVICE_MANAGER: 'fsm-postgres'
+      POSTGRES_HOST_AUTH_METHOD: 'scram-sha-256'
     volumes:
-      - 'planne-database:/var/lib/postgresql/data/'
+      - 'planne_db_data:/var/lib/postgresql/18/docker/'
 
 
 volumes:
-  planne-database:
+  planne_db_data:
+    name: planne_db_data
 
 
 networks:
-  vini-planne:
-    name: vini-planne
+  vini_planne:
+    name: vini_planne
     driver: bridge
