@@ -56,9 +56,49 @@ else:
             "Environment variable WORKERS must be a valid integer"
         )
 
+# Secret key used for JWT token encoding and decoding
+SECRET_KEY = os.getenv("SECRET_KEY", None)
+if SECRET_KEY is None:
+    raise ValueError("Environment variable SECRET_KEY is not set!")
+
+
+# * ###########################################################################
+# * DB credentials
+# * ###########################################################################
+
+POSTGRES_SERVER = os.getenv("POSTGRES_SERVER", "postgres")
+POSTGRES_PORT = os.getenv("POSTGRES_PORT", "5432")
+
+POSTGRES_DB = os.getenv("POSTGRES_DB", "planne")
+POSTGRES_USER = os.getenv("POSTGRES_USER", "postgres")
+POSTGRES_PASSWORD = os.getenv("POSTGRES_PASSWORD", "")
+
+
+def get_postgres_uri():
+    """Build and return the PostgreSQL URI for SQLAlchemy.
+
+    Built using the `POSTGRES_*` environment variables.
+
+    Returns:
+        str: A PostgreSQL URI string in the format `postgresql+psycopg://<POSTGRES_USER>:<POSTGRES_PASSWORD>@<POSTGRES_SERVER>:<POSTGRES_PORT>/<POSTGRES_DB>`
+    """
+    return f"postgresql+psycopg://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_SERVER}:{POSTGRES_PORT}/{POSTGRES_DB}"
+
+
+# * ###########################################################################
+# * First super user credentials
+# * ###########################################################################
+
+FIRST_SUPERUSER_EMAIL = os.getenv("FIRST_SUPERUSER_EMAIL", "admin@mail.com")
+FIRST_SUPERUSER_PASSWORD = os.getenv("FIRST_SUPERUSER_PASSWORD", "12345678")
+FIRST_SUPERUSER_FULL_NAME = os.getenv(
+    "FIRST_SUPERUSER_FULL_NAME", "Vinícius Administrador"
+)
+
 
 # * ###########################################################################
 # * Other server configurations
 # * ###########################################################################
 
 API_V1_STR = "/api/v1"
+ACCESS_TOKEN_EXPIRE_MINUTES = 24 * 60  # 24 hours
