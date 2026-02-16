@@ -1,5 +1,7 @@
 """This file contains the models used in the Planne SDK."""
 
+from uuid import UUID
+
 from sqlmodel import SQLModel  # , Field
 
 from .user import *
@@ -21,4 +23,4 @@ class Token(SQLModel):
 class TokenPayload(SQLModel):
     """Contents of JWT token."""
 
-    sub: int | None = None
+    sub: UUID | None = None

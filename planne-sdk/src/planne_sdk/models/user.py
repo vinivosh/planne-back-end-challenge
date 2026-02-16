@@ -46,7 +46,7 @@ class UpdatePassword(SQLModel):
 class UserPublic(UserBase):
     """Properties to return via API. ID always required."""
 
-    id: int
+    id: UUID
     is_superuser: bool = False
 
 
