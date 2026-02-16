@@ -1,0 +1,43 @@
+services:
+  # fruit-full:
+  #   container_name: fruit_full
+  #   depends_on:
+  #       - planne_db
+  #   networks:
+  #     - vini-planne
+  #   env_file:
+  #     - .env
+  #   ports:
+  #     - "${FASTAPI_PORT-8000}:${FASTAPI_PORT-8000}"
+
+  #   build:
+  #     context: ./fruit-full
+
+  #   platform: linux/amd64 # Patch for M1 Mac
+
+  planne_db:
+    container_name: planne_db
+    image: postgres:18.2-alpine
+    networks:
+      - vini-planne
+    env_file:
+      # Environment variables for postgres user and password must be set in the
+      # .env file located at the root of the repository!
+      - .env
+    ports:
+      - "${POSTGRES_PORT-5432}:${POSTGRES_PORT-5432}"
+    environment:
+      POSTGRES_HOST_AUTH_METHOD: 'password'
+      SERVICE_MANAGER: 'fsm-postgres'
+    volumes:
+      - 'planne-database:/var/lib/postgresql/data/'
+
+
+volumes:
+  planne-database:
+
+
+networks:
+  vini-planne:
+    name: vini-planne
+    driver: bridge
