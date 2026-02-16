@@ -2,7 +2,6 @@
 
 # ruff: noqa: E402
 
-import os
 import sys
 from logging.config import fileConfig
 from pathlib import Path
@@ -16,7 +15,7 @@ _PROJECT_DIR = _FILE_DIR.parent.resolve()
 sys.path.append(str(_PROJECT_DIR))
 
 import planne_sdk.constants as c
-from alembic import context
+from alembic import context  # pyright: ignore[reportAttributeAccessIssue]
 from planne_sdk.models import (
     SQLModel,  # pyright: ignore[reportPrivateImportUsage]
 )
