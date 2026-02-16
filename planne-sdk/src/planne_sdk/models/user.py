@@ -1,5 +1,6 @@
 """Contains user-related models."""
 
+from datetime import datetime
 from uuid import UUID, uuid4
 
 from pydantic import EmailStr
@@ -7,6 +8,7 @@ from sqlalchemy.sql import false
 from sqlmodel import Field, SQLModel
 
 from .. import constants as c
+from .mixins import TimestampsMixin
 
 
 class UserBase(SQLModel):
@@ -47,7 +49,9 @@ class UserPublic(UserBase):
     """Properties to return via API. ID always included."""
 
     id: UUID
-    is_superuser: bool = False
+    is_superuser: bool
+    created_at: datetime | None
+    updated_at: datetime | None
 
 
 class UsersPublic(SQLModel):
@@ -57,7 +61,7 @@ class UsersPublic(SQLModel):
     count: int
 
 
-class User(UserBase, table=True):
+class User(TimestampsMixin, UserBase, table=True):
     """Database model for Users table.
 
     Tables and fields are created, deleted or modified with Alembic migrations
