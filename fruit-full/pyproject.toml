@@ -6,6 +6,10 @@ readme = "README.md"
 requires-python = ">=3.12.12"
 dependencies = [
     "fastapi[standard]==0.129.0",
+    # If the SDK was published as a private package, it would be added here as a
+    # regular dependency with a version specifier, for example:
+    #
+    # "planne-sdk==0.1.x",
     "psycopg-binary==3.3.2",
     "python-dotenv==1.2.1",
     "sqlmodel==0.0.33",
@@ -17,6 +21,8 @@ dependencies = [
 [dependency-groups]
 dev = [
     "commitlint==1.13.3",
+    # Editable install from the local path, see [tool.uv.sources] below.
+    "planne-sdk",
     "pre-commit==4.5.1",
     "pytest==9.0.2",
     "rich==14.3.2",
@@ -43,3 +49,8 @@ extend-ignore = [
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"
+
+[tool.uv.sources]
+# Using an editable install for the SDK to allow for seamless development across
+# both projects.
+planne-sdk = { path = "../planne-sdk", editable = true }
