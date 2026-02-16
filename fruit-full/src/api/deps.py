@@ -14,6 +14,7 @@ from sqlmodel import Session
 
 import constants as c
 from db import engine
+from logger import log
 
 reusable_oauth2 = OAuth2PasswordBearer(
     tokenUrl=f"{c.API_V1_STR}/login/access-token"
@@ -57,7 +58,10 @@ def get_current_user(session: SessionDep, token: TokenDep) -> User:
             token, c.SECRET_KEY, algorithms=[auth.JWT_ENCODING_ALGORITHM]
         )
         token_data = TokenPayload(**payload)
-    except (InvalidTokenError, ValidationError):
+    except (InvalidTokenError, ValidationError) as exc:
+        log.debug(
+            "Error decoding JWT token (%s): %s", exc.__class__.__name__, exc
+        )
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Could not validate credentials",

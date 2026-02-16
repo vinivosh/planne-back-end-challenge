@@ -39,7 +39,10 @@ def init_db(session: Session) -> None:
             is_superuser=True,
             full_name=c.FIRST_SUPERUSER_FULL_NAME,
         )
-        log.debug(f"New user data: {new_user}")
+        log.debug(
+            "New user data: %s",
+            {**new_user.model_dump(), "password": "********"},
+        )
 
         user_use_case.create_user(session=session, user_create=new_user)
 
