@@ -2,6 +2,8 @@
 
 from sqlmodel import SQLModel  # , Field
 
+from .user import *
+
 
 class Message(SQLModel):
     """Generic message model for API responses."""
