@@ -9,8 +9,11 @@ authors = [
 requires-python = ">=3.11.14"
 dependencies = [
     "alembic[tz]==1.18.4",
+    "bcrypt==5.0.0",
+    "passlib[bcrypt]==1.7.4",
     "psycopg-binary==3.3.2",
     "pydantic[email]==2.12.5",
+    "pyjwt==2.11.0",
     "python-dotenv==1.2.1",
     "sqlmodel==0.0.33",
     "structlog==25.5.0",
@@ -31,6 +34,8 @@ dev = [
 migrations = [
     "alembic[tz]==1.18.4",
     "psycopg==3.3.2",
+    "rich==14.3.2",
+    "ruff==0.15.1",
 ]
 
 

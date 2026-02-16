@@ -21,6 +21,15 @@ if LOG_LEVEL not in [
 
 
 # * ###########################################################################
+# * Authentication related
+# * ###########################################################################
+
+# Only used as a default value. Functions that use it should handle the case
+# where it is not set (i.e. by raising a ValueError).
+SECRET_KEY = os.getenv("SECRET_KEY", None)
+
+
+# * ###########################################################################
 # * DB credentials
 # * ###########################################################################
 
