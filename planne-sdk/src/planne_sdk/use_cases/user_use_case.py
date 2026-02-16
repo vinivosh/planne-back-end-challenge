@@ -1,6 +1,7 @@
 """Implementation of user-related use cases (CRUD)."""
 
 from typing import Any
+from uuid import UUID
 
 from sqlmodel import Session, select
 
@@ -59,6 +60,22 @@ def update_user(
     session.commit()
     session.refresh(db_user)
     return db_user
+
+
+def get_user(*, session: Session, id: UUID | str) -> User | None:
+    """Get a user by ID.
+
+    Args:
+        session:
+            Database session to use for the query.
+        id:
+            ID of the user to retrieve.
+
+    Returns:
+        The `User` object if found, or `None` if no user with the given
+        ID exists.
+    """
+    return session.get(User, id)
 
 
 def get_user_by_email(*, session: Session, email: str) -> User | None:
