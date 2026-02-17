@@ -23,7 +23,7 @@ def is_fruit_expired(fruit: Fruit) -> bool:
     either timezone aware or timezone naive, as long as they are in UTC or
     treated as UTC, such as what is returned by SQLModel or SQLAlchemy.
     """
-    return fruit.expires_at.replace(tzinfo=None) >= datetime.now(UTC).replace(
+    return fruit.expires_at.replace(tzinfo=None) <= datetime.now(UTC).replace(
         tzinfo=None
     )
 
