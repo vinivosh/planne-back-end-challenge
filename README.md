@@ -34,12 +34,10 @@ My solution to the challenge for a back-end developer position at [Planne](https
 
 To run the project locally for testing and validation, you must first install all the pre-requisites below.
 
-- add_here
-- add_here
-- add_here
-- add_here
-- add_here
-- add_here
+- [Git](https://git-scm.com/install/)
+- [Python 3.12.x](https://www.python.org/downloads/)
+- [uv](https://github.com/astral-sh/uv)
+- [Docker](https://docs.docker.com/engine/install/)
 
 
 
@@ -51,8 +49,6 @@ First, clone the repository with the command:
 git clone git@github.com:vinivosh/planne-backend-challenge.git
 ```
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec commodo dolor felis, ac tincidunt elit tristique in. Aliquam accumsan venenatis nisi nec venenatis. Donec odio quam, lacinia a ipsum sit amet, placerat vehicula augue. Suspendisse lobortis, libero eu maximus auctor, erat justo finibus dolor, in convallis arcu dolor ac risus. In hac habitasse platea dictumst. Curabitur eros nunc, volutpat eget tellus id, elementum suscipit dui. Morbi id lacus et nisl congue maximus. Vestibulum et enim et neque ultrices pharetra quis sodales velit. Donec pretium porttitor lacus mollis commodo. Mauris at velit neque.
-
 > Note: if you use [**`mise`** (a.k.a. mise-en-place)](https://mise.jdx.dev/about.html) in your machine, it might be needed to run the command below to let `mise` trust the config file `.mise.toml`. This file just tells `mise` to let `uv` manage the Python version.
 > 
 > ```console
@@ -60,6 +56,33 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec commodo dolor fel
 > ```
 >
 > Run this in both the `./fruit-full` and the `./planne-sdk` sub-folders.
+
+Create a valid `.env` file at the root of the repository folder, with all required variables defined. Refer to the `.env-sample` file for more information. The same must be done for each one of the projects in this repo, fruit-full and planne-sdk.
+
+
+### Starting the FruitFULL back-end server + postgres DB
+
+After installing all the requirements and setting up the `.env` file, start the back-end server plus the Postgres DB by simply running the command below from the root folder of the repository:
+
+```console
+sudo docker compose up --build
+```
+
+On first start the database will get created with the credentials provided by the environment variables.
+
+After a successful start for both the backend and postgers services, you must apply the Alembic migrations to auto-create all tables and fields in the database, by running the command below from anywhere:
+
+```console
+sudo docker exec -it fruit_full bash -c 'cd /planne-sdk && POSTGRES_SERVER="planne_db" alembic upgrade head'
+```
+
+This will run Alembic inside the back-end docker container, auto-creating everything needed in the DB.
+
+> Note: the name of the container, `fruit_full`, might be different in your machine. Check the correct name with the command: `sudo docker ps`
+
+After this, stop and restart the docker compose by pressing `ctrl` + `c` and then running the first command again.
+
+Now a first superuser should be created successfully, according to the the environment variables, and you are ready to authenticate yourself and test all routes by visiting [localhost:8000/docs](http://localhost:8000/docs) in your machine.
 
 
 
