@@ -1,19 +1,44 @@
 services:
-  # fruit_full
-  #   container_name: fruit_full
-  #   depends_on:
-  #       - planne_db
-  #   networks:
-  #     - vini_planne
-  #   env_file:
-  #     - .env
-  #   ports:
-  #     - "${FASTAPI_PORT-8000}:${FASTAPI_PORT-8000}"
+  fruit_full:
+    container_name: fruit_full
+    depends_on:
+        - planne_db
+    networks:
+      - vini_planne
+    env_file:
+      - .env
+    ports:
+      - "${FASTAPI_PORT-8000}:${FASTAPI_PORT-8000}"
 
-  #   build:
-  #     context: ./fruit-full
+    build:
+      context: ./fruit-full
+      additional_contexts:
+        planne-sdk: ./planne-sdk
 
-  #   platform: linux/amd64 # Patch for M1 Mac
+    platform: linux/amd64 # Patch for M1 Mac
+
+    develop:
+      # For hot reloading during development
+      watch:
+        # Sync the working directory with the `/app` directory in the container
+        - action: sync
+          path: ./fruit-full
+          target: /app
+          ignore:
+            - .venv/
+
+        # Sync the planne-sdk directory with the `/planne-sdk` directory in the container
+        - action: sync
+          path: ./planne-sdk
+          target: /planne-sdk
+          ignore:
+            - .venv/
+
+        # Rebuild if dependencies change
+        - action: rebuild
+          path: ./fruit-full/uv.lock
+        - action: rebuild
+          path: ./planne-sdk/uv.lock
 
   planne_db:
     container_name: planne_db
