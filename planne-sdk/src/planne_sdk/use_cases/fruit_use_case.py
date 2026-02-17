@@ -5,9 +5,20 @@ from uuid import UUID
 
 from sqlmodel import Session, select
 
-from ..excpetions import FruitOwnerDoesNotMatchBucketOwnerError
+from planne_sdk.models.bucket import Bucket
+
+from ..excpetions import (
+    BucketCapacityExceededError,
+    BucketNotFoundError,
+    FruitOwnerDoesNotMatchBucketOwnerError,
+)
 from ..models import Fruit, FruitCreate, FruitUpdate
-from .bucket_use_case import get_bucket
+from ._fruit_expiration_handler import (
+    expire_fruits_if_needed,
+    get_and_expire_fruits_if_needed,
+    is_fruit_expired,
+)
+from .bucket_use_case import _validate_bucket_capacity, get_bucket
 from .user_use_case import get_user
 
 
@@ -70,7 +81,14 @@ def get_fruit(*, session: Session, fruit_id: UUID | str) -> Fruit | None:
         The `Fruit` object if found, or `None` if no fruit with the given
         ID exists.
     """
-    return session.get(Fruit, fruit_id)
+    if isinstance(fruit_id, str):
+        fruit_id = UUID(fruit_id)
+    fruits, fruits_not_found = get_and_expire_fruits_if_needed(
+        session, [fruit_id]
+    )
+    if fruits_not_found:
+        return None
+    return fruits[0] if fruits else None
 
 
 def get_fruits_by_user(
@@ -91,8 +109,11 @@ def get_fruits_by_user(
     """
     if not get_user(session=session, id=user_id):
         return None
-    statement = select(Fruit).where(Fruit.user_id == user_id)
-    return list(session.exec(statement).all())
+    statement = select(Fruit.id).where(Fruit.user_id == user_id)
+    fruit_ids = list(session.exec(statement).all())
+
+    fruits, _ = get_and_expire_fruits_if_needed(session, fruit_ids)
+    return fruits
 
 
 def get_fruits_by_bucket(
@@ -110,6 +131,8 @@ def get_fruits_by_bucket(
         A list of `Fruit` objects in the bucket. Empty list if no fruits exist
         in the bucket. None if the bucket with the given ID does not exist.
     """
+    # get_bucket() already calls expire_fruits_if_needed() for the bucket's
+    # fruits, so there's no need to call it again here
     if not get_bucket(session=session, bucket_id=bucket_id):
         return None
     statement = select(Fruit).where(Fruit.bucket_id == bucket_id)
@@ -118,7 +141,7 @@ def get_fruits_by_bucket(
 
 def update_fruit(
     *, session: Session, db_fruit: Fruit, fruit_in: FruitUpdate
-) -> Fruit:
+) -> Fruit | None:
     """Update an existing fruit.
 
     Args:
@@ -136,8 +159,36 @@ def update_fruit(
         FruitOwnerDoesNotMatchBucketOwnerError:
             If the fruit belongs to a bucket owned by a different user.
     """
-    fruit_data = fruit_in.model_dump(exclude_unset=True)
-    db_fruit.sqlmodel_update(fruit_data)
+    # fruit_data = fruit_in.model_dump(exclude_unset=True)
+    if fruit_in.expiration_seconds:
+        db_fruit.expires_at = db_fruit.created_at + timedelta(
+            seconds=fruit_in.expiration_seconds
+        )
+        if is_fruit_expired(db_fruit):
+            session.delete(db_fruit)
+            session.commit()
+            return None
+    if fruit_in.name:
+        db_fruit.name = fruit_in.name
+    if fruit_in.price:
+        db_fruit.price = fruit_in.price
+    if db_fruit.bucket_id != fruit_in.bucket_id:
+        if fruit_in.bucket_id is not None:
+            bucket = get_bucket(session=session, bucket_id=fruit_in.bucket_id)
+            if not bucket:
+                raise BucketNotFoundError(
+                    f"Bucket with ID {fruit_in.bucket_id} does not exist."
+                )
+            # Refresh in case any of the bucket's existing fruits were expired
+            # by get_bucket()
+            session.refresh(bucket)
+            if len(bucket.fruits) + 1 > bucket.capacity:
+                raise BucketCapacityExceededError(
+                    f"Cannot add fruit to bucket with ID {fruit_in.bucket_id} because it would exceed the bucket's capacity of {bucket.capacity}."
+                )
+            db_fruit.bucket = bucket
+
+        db_fruit.bucket_id = fruit_in.bucket_id
 
     _validate_fruit_bucket_ownership(db_fruit)
 
@@ -163,6 +214,11 @@ def delete_fruit(*, session: Session, fruit_id: UUID | str) -> Fruit | None:
     fruit = session.get(Fruit, fruit_id)
     if not fruit:
         return None
+    if is_fruit_expired(fruit):
+        return_value = None
+    else:
+        return_value = fruit
+
     session.delete(fruit)
     session.commit()
-    return fruit
+    return return_value

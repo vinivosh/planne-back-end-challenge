@@ -23,7 +23,7 @@ class TimestampsMixin:
         Based on suggestions from https://github.com/fastapi/sqlmodel/issues/252
     """
 
-    created_at: datetime | None = Field(
+    created_at: datetime = Field(
         default_factory=lambda: datetime.now(UTC),
         sa_type=sa.DateTime(),  # pyright: ignore[reportArgumentType]
         sa_column_kwargs={"server_default": sa.func.now()},

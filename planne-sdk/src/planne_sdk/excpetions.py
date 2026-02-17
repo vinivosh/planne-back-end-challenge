@@ -27,6 +27,12 @@ class FruitNotFoundError(ObjectNotFoundError):
         super().__init__(msg or "Requested Fruit was not found.")
 
 
+class BucketNotFoundError(ObjectNotFoundError):
+    def __init__(self, msg: str | None = None):
+        """Raised when a requested Bucket is not found in the DB."""
+        super().__init__(msg or "Requested Bucket was not found.")
+
+
 class FruitOwnerDoesNotMatchBucketOwnerError(PlanneSDKError):
     def __init__(self, msg: str | None = None):
         """Raised when trying to add a fruit to a bucket owned by a different user."""

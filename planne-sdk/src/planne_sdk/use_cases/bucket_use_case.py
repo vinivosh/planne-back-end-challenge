@@ -11,7 +11,7 @@ from ..excpetions import (
     FruitOwnerDoesNotMatchBucketOwnerError,
     UserNotFoundError,
 )
-from ..models import Bucket, BucketCreate, BucketUpdate, Fruit, User
+from ..models import Bucket, BucketCreate, BucketUpdate, User
 from ._fruit_expiration_handler import (
     expire_fruits_if_needed,
     get_and_expire_fruits_if_needed,
