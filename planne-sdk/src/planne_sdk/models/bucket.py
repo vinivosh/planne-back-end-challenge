@@ -26,9 +26,16 @@ class BucketBase(SQLModel):
     )
 
 
-class BucketCreate(BucketBase):
+class BucketCreate(SQLModel):
     """Properties to receive on Bucket creation."""
 
+    capacity: int = Field(
+        default=10,
+        nullable=False,
+        ge=c.MIN_BUCKET_CAPACITY,
+        le=c.MAX_BUCKET_CAPACITY,
+    )
+    user_id: UUID | None = None
     fruits: list[UUID] = []
 
 
@@ -48,6 +55,7 @@ class BucketPublic(BucketBase):
     id: UUID
     created_at: datetime
     updated_at: datetime | None
+    fruits: list = []
 
 
 class BucketsPublic(SQLModel):

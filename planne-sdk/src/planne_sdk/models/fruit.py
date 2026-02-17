@@ -61,6 +61,7 @@ class FruitCreate(SQLModel):
     )
 
     user_id: UUID | None = None
+    bucket_id: UUID | None = None
 
 
 class FruitUpdate(SQLModel):

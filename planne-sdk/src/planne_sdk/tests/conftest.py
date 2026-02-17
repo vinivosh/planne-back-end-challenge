@@ -47,3 +47,13 @@ def db_session(_db_session):
     _db_session.commit()
 
     yield _db_session
+
+
+@pytest.fixture(scope="session", autouse=True)
+def faker_session_locale():
+    return ["pt_BR", "en_US"]
+
+
+@pytest.fixture(scope="session", autouse=True)
+def faker_seed():
+    return random.randint(1, 99999)

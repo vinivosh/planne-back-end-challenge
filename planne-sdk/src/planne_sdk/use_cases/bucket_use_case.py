@@ -29,9 +29,9 @@ def _validate_bucket_fruits_ownership(
             )
 
 def _validate_bucket_capacity(
-    bucket: Bucket, err_msg: str | None = None
+    bucket: Bucket, new_fruit_qnt: int = 0, err_msg: str | None = None
 ) -> None:
-    if len(bucket.fruits) > bucket.capacity:
+    if len(bucket.fruits) > bucket.capacity + new_fruit_qnt:
         raise BucketCapacityExceededError(
             err_msg
             or f"Bucket capacity of {bucket.capacity} exceeded. Cannot save this bucket with {len(bucket.fruits)} fruits. Remove some fruits or increase the bucket's capacity."

@@ -47,6 +47,11 @@ def create_fruit(*, session: Session, fruit_create: FruitCreate) -> Fruit:
     Raises:
         FruitOwnerDoesNotMatchBucketOwnerError:
             If the fruit belongs to a bucket owned by a different user.
+        BucketNotFoundError:
+            If the bucket the fruit is supposed to belong to does not exist.
+        BucketCapacityExceededError:
+            If the bucket the fruit is supposed to belong to is already at full
+            capacity.
     """
     expires_at = datetime.now(UTC) + timedelta(
         seconds=fruit_create.expiration_seconds
@@ -61,6 +66,17 @@ def create_fruit(*, session: Session, fruit_create: FruitCreate) -> Fruit:
         db_obj,
         err_msg="Cannot create a fruit belonging to a bucket owned by a different user.",
     )
+    if db_obj.bucket_id:
+        bucket = get_bucket(session=session, bucket_id=db_obj.bucket_id)
+        if not bucket:
+            raise BucketNotFoundError(
+                f"Bucket with ID {db_obj.bucket_id} does not exist."
+            )
+        _validate_bucket_capacity(
+            bucket,
+            new_fruit_qnt=1,
+            err_msg=f"Cannot add fruit to bucket with ID {bucket.id} because it would exceed the bucket's capacity of {bucket.capacity}.",
+        )
 
     session.add(db_obj)
     session.commit()
@@ -182,10 +198,11 @@ def update_fruit(
             # Refresh in case any of the bucket's existing fruits were expired
             # by get_bucket()
             session.refresh(bucket)
-            if len(bucket.fruits) + 1 > bucket.capacity:
-                raise BucketCapacityExceededError(
-                    f"Cannot add fruit to bucket with ID {fruit_in.bucket_id} because it would exceed the bucket's capacity of {bucket.capacity}."
-                )
+            _validate_bucket_capacity(
+                bucket,
+                new_fruit_qnt=1,
+                err_msg=f"Cannot add fruit to bucket with ID {fruit_in.bucket_id} because it would exceed the bucket's capacity of {bucket.capacity}.",
+            )
             db_fruit.bucket = bucket
 
         db_fruit.bucket_id = fruit_in.bucket_id
