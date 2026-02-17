@@ -38,8 +38,20 @@ class FruitBase(SQLModel):
     )
 
 
-class FruitCreate(FruitBase):
+class FruitCreate(SQLModel):
     """Properties to receive on Fruit creation."""
+
+    name: str = Field(
+        nullable=False,
+        min_length=c.MIN_FRUIT_NAME_LENGTH,
+        max_length=c.MAX_FRUIT_NAME_LENGTH,
+    )
+    price: int = Field(
+        description="Price of the fruit in cents",
+        nullable=False,
+        ge=c.MIN_FRUIT_PRICE_CENTS,
+        le=c.MAX_FRUIT_PRICE_CENTS,
+    )
 
     expiration_seconds: int = Field(
         description="Expiration time of the fruit in seconds, relative to the time of creation (UTC)",
@@ -47,6 +59,8 @@ class FruitCreate(FruitBase):
         ge=c.MIN_FRUIT_EXPIRATION_SECONDS,
         le=c.MAX_FRUIT_EXPIRATION_SECONDS,
     )
+
+    user_id: UUID | None = None
 
 
 class FruitUpdate(SQLModel):

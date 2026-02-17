@@ -36,19 +36,17 @@ def expire_fruits_if_needed(
     Also accepts a single Fruit object as a shortcut for the common case of
     expiring just one fruit.
 
-    Automatically commits the transaction if any fruits were deleted. Either
-    all expired fruits will be deleted, or none will be (i.e. no partial
-    commits).
+    Automatically commits the transaction if any fruits were deleted.
     """
     if fruit_or_fruits == []:
         return
     if not isinstance(fruit_or_fruits, list):
         fruit_or_fruits = [fruit_or_fruits]
 
-    with session.begin(nested=session.in_transaction()):
-        for fruit in fruit_or_fruits:
-            if is_fruit_expired(fruit):
-                session.delete(fruit)
+    for fruit in fruit_or_fruits:
+        if is_fruit_expired(fruit):
+            session.delete(fruit)
+    session.commit()
 
 
 def get_and_expire_fruits_if_needed(
@@ -56,9 +54,7 @@ def get_and_expire_fruits_if_needed(
 ) -> tuple[list[Fruit], list[UUID]]:
     """Get a list of Fruit objects by their IDs, expiring any that are expired.
 
-    Automatically commits the transaction if any fruits were deleted. Either
-    all expired fruits will be deleted, or none will be (i.e. no partial
-    commits).
+    Automatically commits the transaction if any fruits were deleted.
 
     Returns:
         A tuple containing two lists, the first with Fruit objects found and
@@ -76,12 +72,12 @@ def get_and_expire_fruits_if_needed(
     ]
     fruits_not_expired = []
 
-    with session.begin(nested=session.in_transaction()):
-        for fruit in fruits:
-            if is_fruit_expired(fruit):
-                fruit_ids_expired_or_inexistent.append(fruit.id)
-                session.delete(fruit)
-            else:
-                fruits_not_expired.append(fruit)
+    for fruit in fruits:
+        if is_fruit_expired(fruit):
+            fruit_ids_expired_or_inexistent.append(fruit.id)
+            session.delete(fruit)
+        else:
+            fruits_not_expired.append(fruit)
 
-        return fruits_not_expired, fruit_ids_expired_or_inexistent
+    session.commit()
+    return fruits_not_expired, fruit_ids_expired_or_inexistent
