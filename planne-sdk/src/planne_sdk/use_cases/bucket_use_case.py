@@ -5,6 +5,7 @@ from uuid import UUID
 from sqlmodel import Session, select
 
 from ..excpetions import (
+    BucketCapacityExceededError,
     BucketNotEmptyError,
     FruitNotFoundError,
     FruitOwnerDoesNotMatchBucketOwnerError,
@@ -25,6 +26,15 @@ def _validate_bucket_fruits_ownership(
                 err_msg
                 or f"Fruit with ID {fruit.id} does not belong to the bucket's owner with ID {bucket.user_id}. Change the fruit's owner before adding it to the bucket, or change the bucket's owner to match the fruit's owner."
             )
+
+def _validate_bucket_capacity(
+    bucket: Bucket, err_msg: str | None = None
+) -> None:
+    if len(bucket.fruits) > bucket.capacity:
+        raise BucketCapacityExceededError(
+            err_msg
+            or f"Bucket capacity of {bucket.capacity} exceeded. Cannot save this bucket with {len(bucket.fruits)} fruits. Remove some fruits or increase the bucket's capacity."
+        )
 
 
 def create_bucket(*, session: Session, bucket: BucketCreate) -> Bucket:
@@ -58,6 +68,7 @@ def create_bucket(*, session: Session, bucket: BucketCreate) -> Bucket:
     new_bucket = Bucket.model_validate(
         bucket, update={"fruits": fruits_to_add}
     )
+    _validate_bucket_capacity(new_bucket)
     _validate_bucket_fruits_ownership(new_bucket)
     session.add(new_bucket)
     session.commit()
@@ -149,6 +160,7 @@ def update_bucket(
 
     db_bucket.sqlmodel_update(bucket_data)
 
+    _validate_bucket_capacity(db_bucket)
     _validate_bucket_fruits_ownership(db_bucket)
 
     session.add(db_bucket)

@@ -9,6 +9,18 @@ class PlanneSDKError(Exception):
         super().__init__(msg or "Unspecified error in Planne SDK.")
 
 
+class ObjectNotFoundError(PlanneSDKError):
+    def __init__(self, msg: str | None = None):
+        """Raised when a requested object is not found in the DB."""
+        super().__init__(msg or "Requested object was not found.")
+
+
+class FruitNotFoundError(ObjectNotFoundError):
+    def __init__(self, msg: str | None = None):
+        """Raised when a requested Fruit is not found in the DB."""
+        super().__init__(msg or "Requested Fruit was not found.")
+
+
 class FruitOwnerDoesNotMatchBucketOwnerError(PlanneSDKError):
     def __init__(self, msg: str | None = None):
         """Raised when trying to add a fruit to a bucket owned by a different user."""
@@ -22,4 +34,13 @@ class BucketNotEmptyError(PlanneSDKError):
         """Raised when trying to delete a bucket that still contains fruits."""
         super().__init__(
             msg or "Cannot delete a bucket that still contains fruits."
+        )
+
+
+class BucketCapacityExceededError(PlanneSDKError):
+    def __init__(self, msg: str | None = None):
+        """Raised when trying to add more fruits to a bucket than its capacity allows."""
+        super().__init__(
+            msg
+            or "A Bucket cannot contain more fruits than its capacity allows."
         )
