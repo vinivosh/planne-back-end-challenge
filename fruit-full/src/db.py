@@ -7,7 +7,9 @@ from sqlmodel import Session, create_engine, select
 import constants as c
 from logger import log
 
-engine = create_engine(str(c.get_postgres_uri()))
+engine = create_engine(
+    str(c.get_postgres_uri()), connect_args={"options": "-c timezone=utc"}
+)
 
 
 # Make sure all SQLModel models are imported (planne_sdk.models) before

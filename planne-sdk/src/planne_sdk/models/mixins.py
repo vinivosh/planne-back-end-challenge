@@ -25,14 +25,14 @@ class TimestampsMixin:
 
     created_at: datetime | None = Field(
         default_factory=lambda: datetime.now(UTC),
-        sa_type=sa.DateTime(timezone=False),  # pyright: ignore[reportArgumentType]
+        sa_type=sa.DateTime(),  # pyright: ignore[reportArgumentType]
         sa_column_kwargs={"server_default": sa.func.now()},
         nullable=False,
     )
 
     updated_at: datetime | None = Field(
         default_factory=lambda: datetime.now(UTC),
-        sa_type=sa.DateTime(timezone=False),  # pyright: ignore[reportArgumentType]
+        sa_type=sa.DateTime(),  # pyright: ignore[reportArgumentType]
         sa_column_kwargs={
             "onupdate": sa.func.now(),
             "server_default": sa.func.now(),

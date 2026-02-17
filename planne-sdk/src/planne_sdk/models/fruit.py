@@ -53,16 +53,19 @@ class FruitUpdate(SQLModel):
     """Properties to receive via API on Fruit update. All fields optional."""
 
     name: str | None = Field(
+        default=None,
         min_length=c.MIN_FRUIT_NAME_LENGTH,
         max_length=c.MAX_FRUIT_NAME_LENGTH,
     )
     price: int | None = Field(
         description="Price of the fruit in cents",
+        default=None,
         ge=c.MIN_FRUIT_PRICE_CENTS,
         le=c.MAX_FRUIT_PRICE_CENTS,
     )
     expiration_seconds: int | None = Field(
         description="Expiration time of the fruit in seconds, relative to the time of creation (UTC)",
+        default=None,
         ge=c.MIN_FRUIT_EXPIRATION_SECONDS,
         le=c.MAX_FRUIT_EXPIRATION_SECONDS,
     )
@@ -107,7 +110,7 @@ class Fruit(TimestampsMixin, FruitBase, table=True):
     id: UUID = Field(default_factory=uuid4, primary_key=True)
     expires_at: datetime = Field(
         nullable=False,
-        sa_type=sa.DateTime(timezone=False),  # pyright: ignore[reportArgumentType]
+        sa_type=sa.DateTime(),  # pyright: ignore[reportArgumentType]
     )
 
     bucket: Optional["Bucket"] | None = Relationship(back_populates="fruits")
