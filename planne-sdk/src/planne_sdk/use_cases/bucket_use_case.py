@@ -6,12 +6,28 @@ from sqlmodel import Session, select
 
 from ..excpetions import (
     BucketNotEmptyError,
+    FruitNotFoundError,
     FruitOwnerDoesNotMatchBucketOwnerError,
 )
-from ..models import Bucket, BucketUpdate
+from ..models import Bucket, BucketCreate, BucketUpdate, Fruit
+from ._fruit_expiration_handler import (
+    expire_fruits_if_needed,
+    get_and_expire_fruits_if_needed,
+)
 
 
-def create_bucket(*, session: Session, bucket: Bucket) -> Bucket:
+def _validate_bucket_fruits_ownership(
+    bucket: Bucket, err_msg: str | None = None
+) -> None:
+    for fruit in bucket.fruits:
+        if fruit.user_id != bucket.user_id:
+            raise FruitOwnerDoesNotMatchBucketOwnerError(
+                err_msg
+                or f"Fruit with ID {fruit.id} does not belong to the bucket's owner with ID {bucket.user_id}. Change the fruit's owner before adding it to the bucket, or change the bucket's owner to match the fruit's owner."
+            )
+
+
+def create_bucket(*, session: Session, bucket: BucketCreate) -> Bucket:
     """Create a new bucket.
 
     Args:
@@ -22,11 +38,31 @@ def create_bucket(*, session: Session, bucket: Bucket) -> Bucket:
 
     Returns:
         The newly created `Bucket` object.
+
+    Raises:
+        FruitNotFoundError:
+            If any fruit in the bucket does not exist (or has expired already).
+        FruitOwnerDoesNotMatchBucketOwnerError:
+            If any fruit in the bucket does not belong to the bucket's owner.
     """
-    session.add(bucket)
+    fruits_to_add = []
+    if bucket.fruits:
+        fruits_to_add, fruits_not_found = get_and_expire_fruits_if_needed(
+            session, bucket.fruits
+        )
+        if fruits_not_found:
+            raise FruitNotFoundError(
+                f"Some Fruits were not found. Cannot create bucket with non-existent fruits: {fruits_not_found}"
+            )
+
+    new_bucket = Bucket.model_validate(
+        bucket, update={"fruits": fruits_to_add}
+    )
+    _validate_bucket_fruits_ownership(new_bucket)
+    session.add(new_bucket)
     session.commit()
-    session.refresh(bucket)
-    return bucket
+    session.refresh(new_bucket)
+    return new_bucket
 
 
 def get_bucket(*, session: Session, bucket_id: UUID | str) -> Bucket | None:
@@ -42,7 +78,13 @@ def get_bucket(*, session: Session, bucket_id: UUID | str) -> Bucket | None:
         The `Bucket` object if found, or `None` if no bucket with the given
         ID exists.
     """
-    return session.get(Bucket, bucket_id)
+    bucket = session.get(Bucket, bucket_id)
+    if bucket is None:
+        return None
+
+    expire_fruits_if_needed(session, bucket.fruits)
+    session.refresh(bucket)
+    return bucket
 
 
 def get_buckets_by_user(
@@ -61,7 +103,12 @@ def get_buckets_by_user(
         buckets exist for the user.
     """
     statement = select(Bucket).where(Bucket.user_id == user_id)
-    return list(session.exec(statement).all())
+    buckets = list(session.exec(statement).all())
+
+    for bucket in buckets:
+        expire_fruits_if_needed(session, bucket.fruits)
+        session.refresh(bucket)
+    return buckets
 
 
 def update_bucket(
@@ -81,18 +128,28 @@ def update_bucket(
         The updated `Bucket` object.
 
     Raises:
+        FruitNotFoundError:
+            If any fruit in the updated bucket does not exist (or has expired
+            already).
         FruitOwnerDoesNotMatchBucketOwnerError:
             If any fruit in the updated bucket does not belong to the bucket's
             owner.
     """
+    fruits_to_update = []
+    if bucket_in.fruits:
+        fruits_to_update, fruits_not_found = get_and_expire_fruits_if_needed(
+            session, bucket_in.fruits
+        )
+        if fruits_not_found:
+            raise FruitNotFoundError(
+                f"Some Fruits were not found. Cannot update bucket with non-existent fruits: {fruits_not_found}"
+            )
     bucket_data = bucket_in.model_dump(exclude_unset=True)
+    bucket_data["fruits"] = fruits_to_update
+
     db_bucket.sqlmodel_update(bucket_data)
 
-    for fruit in db_bucket.fruits:
-        if fruit.user_id != db_bucket.user_id:
-            raise FruitOwnerDoesNotMatchBucketOwnerError(
-                f"Fruit with ID {fruit.id} does not belong to the bucket's owner with ID {db_bucket.user_id}. Change the fruit's owner before adding it to the bucket, or change the bucket's owner to match the fruit's owner."
-            )
+    _validate_bucket_fruits_ownership(db_bucket)
 
     session.add(db_bucket)
     session.commit()
@@ -120,6 +177,9 @@ def delete_bucket(*, session: Session, bucket_id: UUID | str) -> Bucket | None:
     bucket = session.get(Bucket, bucket_id)
     if not bucket:
         return None
+
+    expire_fruits_if_needed(session, bucket.fruits)
+    session.refresh(bucket)
 
     if len(bucket.fruits) > 0:
         raise BucketNotEmptyError()
