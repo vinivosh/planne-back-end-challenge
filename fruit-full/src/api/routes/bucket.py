@@ -3,6 +3,15 @@
 from uuid import UUID
 
 from fastapi import APIRouter, HTTPException
+from planne_sdk.excpetions import (
+    BucketCapacityExceededError,
+    BucketNotEmptyError,
+    BucketNotFoundError,
+    FruitNotFoundError,
+    FruitOwnerDoesNotMatchBucketOwnerError,
+    ObjectNotFoundError,
+    PlanneSDKError,
+)
 from planne_sdk.models import (
     Bucket,
     BucketCreate,
@@ -44,13 +53,25 @@ def create_bucket(
     *, session: SessionDep, bucket_in: BucketCreate, current_user: CurrentUser
 ) -> BucketPublic:
     """Create new bucket."""
-    if bucket_in.user_id != current_user.id and not current_user.is_superuser:
+    if bucket_in.user_id is None:
+        bucket_in.user_id = current_user.id
+    elif (
+        bucket_in.user_id != current_user.id and not current_user.is_superuser
+    ):
         raise HTTPException(
             status_code=403,
             detail="You can only create buckets for yourself",
         )
 
-    bucket = bucket_use_case.create_bucket(session=session, bucket=bucket_in)
+    try:
+        bucket = bucket_use_case.create_bucket(
+            session=session, bucket=bucket_in
+        )
+    except (FruitNotFoundError, FruitOwnerDoesNotMatchBucketOwnerError) as exc:
+        raise HTTPException(
+            status_code=400,
+            detail=str(exc),
+        )
     return BucketPublic.model_validate(bucket)
 
 
@@ -98,9 +119,15 @@ def update_bucket(
             detail="You can only assign buckets to yourself",
         )
 
-    db_bucket = bucket_use_case.update_bucket(
-        session=session, db_bucket=db_bucket, bucket_in=bucket_in
-    )
+    try:
+        db_bucket = bucket_use_case.update_bucket(
+            session=session, db_bucket=db_bucket, bucket_in=bucket_in
+        )
+    except (FruitNotFoundError, FruitOwnerDoesNotMatchBucketOwnerError) as exc:
+        raise HTTPException(
+            status_code=400,
+            detail=str(exc),
+        )
     return BucketPublic.model_validate(db_bucket)
 
 
@@ -118,5 +145,11 @@ def delete_bucket(
             detail="The bucket with this id does not exist in the system",
         )
 
-    bucket_use_case.delete_bucket(session=session, bucket_id=bucket_id)
+    try:
+        bucket_use_case.delete_bucket(session=session, bucket_id=bucket_id)
+    except BucketNotEmptyError as exc:
+        raise HTTPException(
+            status_code=400,
+            detail=str(exc),
+        )
     return Message(message="Bucket deleted successfully")

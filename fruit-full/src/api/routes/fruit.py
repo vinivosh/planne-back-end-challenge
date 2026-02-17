@@ -3,6 +3,11 @@
 from uuid import UUID
 
 from fastapi import APIRouter, HTTPException
+from planne_sdk.excpetions import (
+    BucketCapacityExceededError,
+    BucketNotFoundError,
+    FruitOwnerDoesNotMatchBucketOwnerError,
+)
 from planne_sdk.models import (
     Bucket,
     Fruit,
@@ -49,7 +54,16 @@ def create_fruit(
             detail="You can only create fruits for yourself",
         )
 
-    fruit = fruit_use_case.create_fruit(session=session, fruit_create=fruit_in)
+    try:
+        fruit = fruit_use_case.create_fruit(
+            session=session, fruit_create=fruit_in
+        )
+    except (
+        BucketNotFoundError,
+        FruitOwnerDoesNotMatchBucketOwnerError,
+        BucketCapacityExceededError,
+    ) as exc:
+        raise HTTPException(status_code=404, detail=str(exc))
     return FruitPublic.model_validate(fruit)
 
 
