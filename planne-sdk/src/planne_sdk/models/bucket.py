@@ -36,9 +36,9 @@ class BucketUpdate(SQLModel):
     """Properties to receive on Bucket update. All fields optional."""
 
     capacity: int | None = Field(
-        nullable=False, ge=c.MIN_BUCKET_CAPACITY, le=c.MAX_BUCKET_CAPACITY
+        default=None, ge=c.MIN_BUCKET_CAPACITY, le=c.MAX_BUCKET_CAPACITY
     )
-    user_id: UUID | None
+    user_id: UUID | None = None
     fruits: list[UUID] = []
 
 

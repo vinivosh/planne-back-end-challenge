@@ -9,8 +9,9 @@ from ..excpetions import (
     BucketNotEmptyError,
     FruitNotFoundError,
     FruitOwnerDoesNotMatchBucketOwnerError,
+    UserNotFoundError,
 )
-from ..models import Bucket, BucketCreate, BucketUpdate, Fruit
+from ..models import Bucket, BucketCreate, BucketUpdate, Fruit, User
 from ._fruit_expiration_handler import (
     expire_fruits_if_needed,
     get_and_expire_fruits_if_needed,
@@ -146,7 +147,9 @@ def update_bucket(
             If any fruit in the updated bucket does not belong to the bucket's
             owner.
     """
-    fruits_to_update = []
+    expire_fruits_if_needed(session, db_bucket.fruits)
+    session.refresh(db_bucket)
+
     if bucket_in.fruits:
         fruits_to_update, fruits_not_found = get_and_expire_fruits_if_needed(
             session, bucket_in.fruits
@@ -155,10 +158,20 @@ def update_bucket(
             raise FruitNotFoundError(
                 f"Some Fruits were not found. Cannot update bucket with non-existent fruits: {fruits_not_found}"
             )
-    bucket_data = bucket_in.model_dump(exclude_unset=True)
-    bucket_data["fruits"] = fruits_to_update
 
-    db_bucket.sqlmodel_update(bucket_data)
+        db_bucket.fruits = fruits_to_update
+
+    if bucket_in.user_id:
+        new_user = session.get(User, bucket_in.user_id)
+        if new_user is None:
+            raise UserNotFoundError(
+                f"User with ID {bucket_in.user_id} does not exist. Cannot update bucket with non-existent user as owner."
+            )
+        db_bucket.user = new_user
+        db_bucket.user_id = new_user.id
+
+    if bucket_in.capacity:
+        db_bucket.capacity = bucket_in.capacity
 
     _validate_bucket_capacity(db_bucket)
     _validate_bucket_fruits_ownership(db_bucket)
