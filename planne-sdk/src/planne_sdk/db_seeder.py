@@ -105,6 +105,18 @@ def build(model_type_or_name: type | str, **kwargs) -> Any:
     """Build an instance of the given model class with default values.
 
     Defaults can be overridden by passing field values as keyword arguments.
+
+    Args:
+        model_type_or_name:
+            Model class or name of the model to build. E.g. `User` or `"user"`.
+            Names are case-insensitive.
+        **kwargs:
+            Field names and values to override the defaults when building the
+            model instance.
+
+    Raises:
+        RuntimeError:
+            If no build function is found for the given model type or name.
     """
     if isinstance(model_type_or_name, str):
         fn_name = f"_build_{model_type_or_name.lower()}"
@@ -119,6 +131,26 @@ def build(model_type_or_name: type | str, **kwargs) -> Any:
 
 
 def insert(model_type_or_name: type | str, session: Session, **kwargs) -> Any:
+    """Insert in DB an instance of the given model with default values.
+
+    Defaults can be overridden by passing field values as keyword arguments.
+
+    Args:
+        model_type_or_name:
+            Model class or name of the model to insert. E.g. `Bucket` or
+            `"bucket"`. Names are case-insensitive.
+        session:
+            SQLModel session to use for inserting the instance into the
+            database.
+        **kwargs:
+            Field names and values to override the defaults when inserting the
+            model instance.
+
+    Raises:
+        RuntimeError:
+            If no necessary build function is found for the given model type or
+            name.
+    """
     instance = build(model_type_or_name, **kwargs)
     session.add(instance)
     session.commit()
