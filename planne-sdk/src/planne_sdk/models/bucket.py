@@ -26,18 +26,24 @@ class BucketBase(SQLModel):
     )
 
 
+class BucketCreate(BucketBase):
+    """Properties to receive on Bucket creation."""
+
+    fruits: list[UUID] = []
+
+
 class BucketUpdate(SQLModel):
-    """Properties to receive via API on Bucket update. All fields optional."""
+    """Properties to receive on Bucket update. All fields optional."""
 
     capacity: int | None = Field(
         nullable=False, ge=c.MIN_BUCKET_CAPACITY, le=c.MAX_BUCKET_CAPACITY
     )
     user_id: UUID | None
-    fruits: list["Fruit"] = []
+    fruits: list[UUID] = []
 
 
 class BucketPublic(BucketBase):
-    """Properties to return via API. ID always included."""
+    """Properties to return. ID always included."""
 
     id: UUID
     created_at: datetime
@@ -45,7 +51,7 @@ class BucketPublic(BucketBase):
 
 
 class BucketsPublic(SQLModel):
-    """Properties to return via API, for multiple buckets."""
+    """Properties to return, for multiple buckets."""
 
     data: list[BucketPublic]
     count: int

@@ -39,7 +39,7 @@ class FruitBase(SQLModel):
 
 
 class FruitCreate(FruitBase):
-    """Properties to receive via API on Fruit creation."""
+    """Properties to receive on Fruit creation."""
 
     expiration_seconds: int = Field(
         description="Expiration time of the fruit in seconds, relative to the time of creation (UTC)",
@@ -50,7 +50,7 @@ class FruitCreate(FruitBase):
 
 
 class FruitUpdate(SQLModel):
-    """Properties to receive via API on Fruit update. All fields optional."""
+    """Properties to receive on Fruit update. All fields optional."""
 
     name: str | None = Field(
         default=None,
@@ -74,7 +74,7 @@ class FruitUpdate(SQLModel):
 
 
 class FruitPublic(FruitBase):
-    """Properties to return via API."""
+    """Properties to return in public API responses."""
 
     id: UUID
     expires_at: datetime
@@ -83,7 +83,7 @@ class FruitPublic(FruitBase):
 
 
 class FruitsPublic(SQLModel):
-    """Properties to return via API, for multiple fruits."""
+    """Properties to return in public API responses, for multiple fruits."""
 
     data: list[FruitPublic]
     count: int

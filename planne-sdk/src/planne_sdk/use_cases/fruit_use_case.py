@@ -12,12 +12,12 @@ from .user_use_case import get_user
 
 
 def _validate_fruit_bucket_ownership(
-    db_fruit: Fruit, err_msg: str | None = None
+    fruit: Fruit, err_msg: str | None = None
 ) -> None:
-    if db_fruit.bucket and db_fruit.bucket.user_id != db_fruit.user_id:
+    if fruit.bucket and fruit.bucket.user_id != fruit.user_id:
         raise FruitOwnerDoesNotMatchBucketOwnerError(
             err_msg
-            or f"Fruit with ID {db_fruit.id} belongs to a bucket owned by a different user. Change the fruit's owner before adding it to the bucket, or change the bucket's owner to match the fruit's owner."
+            or f"Fruit with ID {fruit.id} belongs to a bucket owned by a different user. Change the fruit's owner before adding it to the bucket, or change the bucket's owner to match the fruit's owner."
         )
 
 
