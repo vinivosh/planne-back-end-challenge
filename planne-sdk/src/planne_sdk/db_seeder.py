@@ -21,7 +21,7 @@ from planne_sdk.models import Bucket, Fruit, User
 DEFAULT_USER_PASSWORD = "@Pass.123Tmp"
 DEFAULT_USER_PASSWORD_HASHED = "$argon2id$v=19$m=65536,t=3,p=4$pVRKSal1rjWmdI4RQkjJ2Q$dheWYRWIZWlZfnqcchEXPIYqUyLDwsavvgdLzUYqI48"
 
-DEFAULT_FRUIT_EXPIRATION_TIMEDELTA = timedelta(minutes=5)
+DEFAULT_FRUIT_EXPIRATION_TIMEDELTA = timedelta(minutes=20)
 DEFAULT_BUCKET_CAPACITY = 10
 
 FAKER_SEED = randint(0, 99999)

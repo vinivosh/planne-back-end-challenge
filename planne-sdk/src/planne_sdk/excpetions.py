@@ -15,6 +15,12 @@ class ObjectNotFoundError(PlanneSDKError):
         super().__init__(msg or "Requested object was not found.")
 
 
+class UserNotFoundError(ObjectNotFoundError):
+    def __init__(self, msg: str | None = None):
+        """Raised when a requested User is not found in the DB."""
+        super().__init__(msg or "Requested User was not found.")
+
+
 class FruitNotFoundError(ObjectNotFoundError):
     def __init__(self, msg: str | None = None):
         """Raised when a requested Fruit is not found in the DB."""
