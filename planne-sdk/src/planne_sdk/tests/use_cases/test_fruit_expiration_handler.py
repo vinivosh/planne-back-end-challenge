@@ -36,6 +36,109 @@ class TestIsFruitExpired:
         assert not is_fruit_expired(non_expired_fruit)
 
 
+class TestExpireFruitsIfNeeded:
+    now = datetime.now(UTC)
+
+    def test_deletes_single_expired_fruit(self, db_session: Session):
+        expired_fruit: Fruit = insert(
+            Fruit,
+            session=db_session,
+            created_at=self.now - timedelta(minutes=10),
+            expires_at=self.now - timedelta(minutes=5),
+        )
+
+        expire_fruits_if_needed(db_session, expired_fruit)
+
+        assert db_session.get(Fruit, expired_fruit.id) is None
+
+    def test_keeps_single_non_expired_fruit(self, db_session: Session):
+        non_expired_fruit: Fruit = insert(
+            Fruit,
+            session=db_session,
+            created_at=self.now - timedelta(minutes=10),
+            expires_at=self.now + timedelta(minutes=5),
+        )
+
+        expire_fruits_if_needed(db_session, non_expired_fruit)
+
+        result = db_session.get(Fruit, non_expired_fruit.id)
+        assert result is not None
+        assert result.id == non_expired_fruit.id
+
+    def test_deletes_expired_fruits_from_list(self, db_session: Session):
+        expired_fruit_1: Fruit = insert(
+            Fruit,
+            session=db_session,
+            created_at=self.now - timedelta(minutes=10),
+            expires_at=self.now - timedelta(minutes=5),
+        )
+        expired_fruit_2: Fruit = insert(
+            Fruit,
+            session=db_session,
+            created_at=self.now - timedelta(minutes=20),
+            expires_at=self.now - timedelta(minutes=15),
+        )
+
+        expire_fruits_if_needed(db_session, [expired_fruit_1, expired_fruit_2])
+
+        assert db_session.get(Fruit, expired_fruit_1.id) is None
+        assert db_session.get(Fruit, expired_fruit_2.id) is None
+
+    def test_keeps_non_expired_fruits_in_list(self, db_session: Session):
+        non_expired_fruit_1: Fruit = insert(
+            Fruit,
+            session=db_session,
+            created_at=self.now - timedelta(minutes=10),
+            expires_at=self.now + timedelta(minutes=5),
+        )
+        non_expired_fruit_2: Fruit = insert(
+            Fruit,
+            session=db_session,
+            created_at=self.now - timedelta(minutes=20),
+            expires_at=self.now + timedelta(minutes=15),
+        )
+
+        expire_fruits_if_needed(
+            db_session, [non_expired_fruit_1, non_expired_fruit_2]
+        )
+
+        result_1 = db_session.get(Fruit, non_expired_fruit_1.id)
+        assert result_1 is not None
+        assert result_1.id == non_expired_fruit_1.id
+
+        result_2 = db_session.get(Fruit, non_expired_fruit_2.id)
+        assert result_2 is not None
+        assert result_2.id == non_expired_fruit_2.id
+
+    def test_deletes_only_expired_from_mixed_list(self, db_session: Session):
+        expired_fruit: Fruit = insert(
+            Fruit,
+            session=db_session,
+            created_at=self.now - timedelta(minutes=10),
+            expires_at=self.now - timedelta(minutes=5),
+        )
+        non_expired_fruit: Fruit = insert(
+            Fruit,
+            session=db_session,
+            created_at=self.now - timedelta(minutes=10),
+            expires_at=self.now + timedelta(minutes=5),
+        )
+
+        expire_fruits_if_needed(db_session, [expired_fruit, non_expired_fruit])
+
+        expired_result = db_session.get(Fruit, expired_fruit.id)
+        assert expired_result is None
+        non_expired_result = db_session.get(Fruit, non_expired_fruit.id)
+        assert non_expired_result is not None
+        assert non_expired_result.id == non_expired_fruit.id
+
+    def test_handles_empty_list(self, db_session: Session):
+        expire_fruits_if_needed(db_session, [])
+
+        all_fruits = db_session.exec(select(Fruit)).all()
+        assert len(all_fruits) == 0
+
+
 class TestGetAndExpireFruitsIfNeeded:
     now = datetime.now(UTC)
 
