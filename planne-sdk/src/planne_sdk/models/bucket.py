@@ -55,7 +55,12 @@ class BucketPublic(BucketBase):
     id: UUID
     created_at: datetime
     updated_at: datetime | None
+
+    total_price: int = 0  # Computed at runtime
+    capacity_percentage_filled: float = 0.0  # Computed at runtime
+
     fruits: list = []
+
 
 
 class BucketsPublic(SQLModel):

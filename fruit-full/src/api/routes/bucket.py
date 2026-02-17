@@ -31,8 +31,6 @@ router = APIRouter()
 def get_buckets(
     session: SessionDep,
     current_user: CurrentUser,
-    skip: int = 0,
-    limit: int = 100,
 ) -> BucketsPublic:
     """Retrieve buckets for current user."""
     buckets = bucket_use_case.get_buckets_by_user(
@@ -40,12 +38,25 @@ def get_buckets(
     )
 
     total_count = len(buckets)
-    buckets = buckets[skip : skip + limit]
+    buckets_public = []
+    for bucket in buckets:
+        bucket_public = BucketPublic.model_validate(bucket)
+        # Compute runtime fields
+        bucket_public.total_price = sum(fruit.price for fruit in bucket.fruits)
+        bucket_public.capacity_percentage_filled = round(
+            len(bucket.fruits) / bucket.capacity, 1
+        )
+        buckets_public.append(bucket_public)
+    buckets_public = sorted(
+        buckets_public,
+        key=lambda b: b.capacity_percentage_filled,
+        reverse=True,
+    )
 
-    buckets_public = [
-        BucketPublic.model_validate(bucket) for bucket in buckets
-    ]
-    return BucketsPublic(data=buckets_public, count=total_count)
+    return BucketsPublic(
+        data=buckets_public,
+        count=total_count,
+    )
 
 
 @router.post("/", response_model=BucketPublic)
