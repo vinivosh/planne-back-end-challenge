@@ -10,6 +10,7 @@ dependencies = [
     # regular dependency with a version specifier, for example:
     #
     # "planne-sdk==0.1.x",
+    "planne-sdk",
     "python-dotenv==1.2.1",
     "sqlmodel==0.0.33",
     "structlog==25.5.0",
@@ -21,6 +22,7 @@ dependencies = [
 dev = [
     "commitlint==1.13.3",
     # Editable install from the local path, see [tool.uv.sources] below.
+    "faker==40.4.0",
     "planne-sdk",
     "pre-commit==4.5.1",
     "pytest==9.0.2",
