@@ -45,7 +45,9 @@ def _build_user(**kwargs) -> User:
                 domain="mail.com",
             ),
         ),
-        "full_name": kwargs.get("full_name", faker.full_name()),
+        "full_name": kwargs.get(
+            "full_name", f"{faker.first_name()} {faker.last_name()}"
+        ),
         "id": kwargs.get("id", uuid4()),
         "is_superuser": kwargs.get("is_superuser", False),
         "hashed_password": kwargs.get(
